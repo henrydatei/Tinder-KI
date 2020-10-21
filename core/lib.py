@@ -157,8 +157,7 @@ class TinderAPI:
 
         return m
 
-    def message(self, to_id, message):
-        match_id = to_id + self.profile.user_id
+    def message(self, match_id, message):
         return self.request('/user/matches/{user_id}'.format(user_id=match_id), method=TinderAPI.POST, json={"message": message})
 
     def getChat(self, match_id, next_page_token = None):

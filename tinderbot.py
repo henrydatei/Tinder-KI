@@ -36,7 +36,7 @@ match = api.matches()[20]
 #         pass
 
 #print(str(len(matches)))
-#print(api.message("5f31b394c4eca70100733efb", "Warum hast du mich nicht zuerst angeschrieben?"))
+#print(api.message("5f1e858e8702cc0100e13d9c5f7330dc3b3b1b01000235e4", "Warum hast du mich nicht zuerst angeschrieben?"))
 
 #messages = api.getChat("5f1e858e8702cc0100e13d9c5f7330dc3b3b1b01000235e4")
 #print(str(len(messages)))
