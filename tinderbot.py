@@ -28,7 +28,7 @@ api = TinderAPI("token")
 #     messages = api.getChat(match.match_id)
 #     print(match.match_id + " - " + str(len(messages)))
 
-match = api.matches()[20]
+matches = api.matches()
 # for match in matches:
 #     try:
 #         print(match.person.name + " - " + match.last_message[0].message)
@@ -43,19 +43,21 @@ match = api.matches()[20]
 #for msg in messages:
 #    print(msg.message_from + ": " + msg.message)
 
-data = {}
-person = match.person
-data['name'] = person.name
-data['id'] = person.person_id
-data['birth_date'] = person.birth_date
-data['age'] = getAge(person)
-data['photo_urls'] = person.photo_urls
-data['match_id'] = match.match_id
-data['messages'] = []
-messages = api.getChat(match.match_id)
-for msg in messages:
-    msgObj = {'from': msg.message_from, 'to': msg.message_to, 'time': msg.timestamp, 'content': msg.message}
-    data['messages'].append(msgObj)
+for match in matches:
+    data = {}
+    person = match.person
+    data['name'] = person.name
+    data['id'] = person.person_id
+    data['birth_date'] = person.birth_date
+    data['age'] = getAge(person)
+    data['photo_urls'] = person.photo_urls
+    data['match_id'] = match.match_id
+    data['messages'] = []
+    data['created_date'] = match.created_date
+    messages = api.getChat(match.match_id)
+    for msg in messages:
+        msgObj = {'from': msg.message_from, 'to': msg.message_to, 'time': msg.timestamp, 'content': msg.message}
+        data['messages'].append(msgObj)
 
-with open('chat.json', 'w') as outfile:
-    json.dump(data, outfile)
+    with open("chats/" + str(person.person_id) + ".json", 'w') as outfile:
+        json.dump(data, outfile)
