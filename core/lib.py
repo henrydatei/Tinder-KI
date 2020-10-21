@@ -22,7 +22,7 @@ class TinderAPI:
     def __init__(self, x_auth_token):
         self.x_auth_token = x_auth_token
         self.init_headers()
-        self.match_person_ids = [m.person.person_id for m in self.matches]
+        #self.match_person_ids = [m.person.person_id for m in self.matches]
         self.profile = self.get_profile()
 
     def init_headers(self):
@@ -96,17 +96,7 @@ class TinderAPI:
     def unmatch(self, match_id):
         return self.request("/user/matches/{match_id}".format(match_id=match_id), method=self.DELETE)
 
-    @property
-    def matches(self):
-        params = {
-            'messages': 0,
-            'count': 100,
-            'is_tinder_u': 'false',
-            'locale': 'de'
-        }
-        r = self.request('/v2/matches', params=params)
-        data = r.json().get('data', None)
-
+    def matches_page(self, data):
         matches = []
         for match in data.get('matches'):
             msgs = []
@@ -294,5 +284,3 @@ class TinderBot:
         with open(path, 'r') as f:
             lines = f.read().splitlines()
         return lines
-
-
