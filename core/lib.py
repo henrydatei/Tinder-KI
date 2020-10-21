@@ -3,6 +3,7 @@ from datetime import datetime
 from pprint import pprint
 from random import randint
 from urllib.parse import urljoin
+import json
 
 import requests
 
@@ -121,22 +122,88 @@ class TinderAPI:
                 })
                 msgs.append(m)
             p = Person()
-            p.person_id = match['person']['_id']
-            p.name = match['person']['name']
+            p.person_id = match['person'].get('_id')
+            p.birth_date = match['person'].get('birth_date')
+            photoObj =  match['person'].get('photos')
+            p.photo_urls = [photo.get('url') for photo in photoObj]
+            p.name = match['person'].get('name')
 
             m = Match(**{
                 'message_count': match['message_count'],
                 'match_id': match['id'],
                 'person': p,
-                'messages': msgs,
+                'last_message': msgs,
                 'created_date': match['created_date'],
             })
             matches.append(m)
         return matches
 
-    def message(self, match_id, message):
-        return self.request('/user/matches/{user_id}'.format(user_id=match_id),
-                            method=TinderAPI.POST, json={"message": message})
+    def matches(self):
+        params = {
+            'messages': 0,
+            'count': 100,
+            'is_tinder_u': 'false',
+            'locale': 'de'
+        }
+        r = self.request('/v2/matches', params=params)
+        data = r.json().get('data', None)
+
+        m = self.matches_page(data)
+        next_page_token = data.get('next_page_token')
+
+        while next_page_token is not None:
+            params = {
+                'messages': 0,
+                'count': 100,
+                'is_tinder_u': 'false',
+                'locale': 'de',
+                'page_token': next_page_token
+            }
+            r = self.request('/v2/matches', params=params)
+            data = r.json().get('data', None)
+            more = self.matches_page(data)
+            m.extend(more)
+            next_page_token = data.get('next_page_token')
+
+        return m
+
+    def message(self, to_id, message):
+        match_id = to_id + self.profile.user_id
+        return self.request('/user/matches/{user_id}'.format(user_id=match_id), method=TinderAPI.POST, json={"message": message})
+
+    def getChat(self, match_id, next_page_token = None):
+        if next_page_token is None:
+            params = {
+                'count': 100,
+                'locale': 'de',
+            }
+        else:
+            params = {
+                'count': 100,
+                'locale': 'de',
+                'page_token': next_page_token
+            }
+        r = self.request('/v2/matches/{match_id}/messages'.format(match_id=match_id), params=params)
+        data = r.json().get('data', None)
+        messages = []
+
+        for msg in data.get('messages'):
+            m = Message(**{
+                "message_id": msg.get('_id'),
+                "match_id": msg.get('match_id'),
+                "sent_date": msg.get('sent_date'),
+                "message": msg.get('message'),
+                "message_to": msg.get('to'),
+                "message_from": msg.get('from'),
+                "timestamp": msg.get('timestamp')
+            })
+            messages.append(m)
+
+        next_page_token = data.get('next_page_token')
+        if next_page_token is not None:
+            moreMessages = self.getChat(match_id, next_page_token)
+            messages.extend(moreMessages)
+        return messages
 
 
 class TinderBot:

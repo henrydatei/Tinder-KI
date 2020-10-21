@@ -18,7 +18,9 @@ class Recommendation:
 
 class Person:
     person_id = None
+    birth_date = None
     name = None
+    photo_urls = None
 
     def __init__(self, **kwargs):
         for key in kwargs:
@@ -52,7 +54,7 @@ class Match:
     message_count = None
     match_id = None
     person = None
-    messages = []
+    last_message = []
     created_date = None
 
     def __init__(self, **kwargs):
