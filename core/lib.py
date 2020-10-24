@@ -117,6 +117,10 @@ class TinderAPI:
             photoObj =  match['person'].get('photos')
             p.photo_urls = [photo.get('url') for photo in photoObj]
             p.name = match['person'].get('name')
+            if match['person'].get('bio') is not None:
+                p.bio = match['person'].get('bio')
+            else:
+                p.bio = ""
 
             m = Match(**{
                 'message_count': match['message_count'],

@@ -21,6 +21,7 @@ class Person:
     birth_date = None
     name = None
     photo_urls = None
+    bio = None
 
     def __init__(self, **kwargs):
         for key in kwargs:
