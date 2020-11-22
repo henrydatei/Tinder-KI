@@ -219,3 +219,4 @@ dmypy.json
 .idea/
 config.ini
 chats/
+.DS_Store
