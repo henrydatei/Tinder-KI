@@ -20,8 +20,10 @@ def getAge(person):
         return num_years
 
 api = TinderAPI("token")
-totalMessages = 0
-totalChats = 0
+totalMessagesMale = 0
+totalChatsMale = 0
+totalMessagesFemale = 0
+totalChatsFemale = 0
 
 #print(api.profile.user_id)
 
@@ -49,6 +51,7 @@ for match in matches:
     data = {}
     person = match.person
     data['name'] = person.name
+    data['gender'] = person.gender
     data['id'] = person.person_id
     data['birth_date'] = person.birth_date
     data['age'] = getAge(person)
@@ -60,11 +63,17 @@ for match in matches:
     for msg in messages:
         msgObj = {'from': msg.message_from, 'to': msg.message_to, 'time': msg.timestamp, 'content': msg.message}
         data['messages'].append(msgObj)
-    totalMessages = totalMessages + len(messages)
+    if person.gender == 0:
+        # male
+        totalChatsMale = totalChatsMale + 1
+        totalMessagesMale = totalMessagesMale + len(messages)
+    else:
+        totalChatsFemale = totalChatsFemale + 1
+        totalMessagesFemale = totalMessagesFemale + len(messages)
 
     with open("chats/" + str(person.person_id) + ".json", 'w') as outfile:
         json.dump(data, outfile)
 
-totalChats = len(matches)
-print("Total Chats: " + str(totalChats))
-print("Total Messages: " + str(totalMessages))
+
+print("Total Chats: " + str(totalChatsMale + totalChatsFemale) + " (" + str(totalChatsMale) + " [m] und " + str(totalChatsFemale) + " [f])")
+print("Total Messages: " + str(totalMessagesMale + totalMessagesFemale) + " (" + str(totalMessagesMale) + " [m] und " + str(totalMessagesFemale) + " [f])")
